@@ -15,9 +15,10 @@ the GitHub repository receives no commits.
 - TypeScript checks, the dry-run Worker bundle, and 10 Worker/local-D1
   integration tests pass, including cache races, failures, and scheduled rotation.
 - Local migrations were applied. The separate revision migration upgrades
-  existing local databases without deleting data. No remote migration was run.
+  existing local databases without deleting data. Both migrations are also
+  applied to the deployed D1 database.
 - README and CI document and verify the implementation. CI does not scrape or
-  deploy; Cloudflare deployment and the live acceptance gates remain pending.
+  deploy. The Worker is deployed; remaining live acceptance gates are below.
 - The source index check on 2026-10-08 found 64 valid links and 58 unique codes.
   Duplicate codes 07, 13, and 18 use the last source link, matching the planned
   code-based upsert. The 64-calendar quota estimate is conservative; counts vary.
@@ -252,8 +253,9 @@ D1 database ID. Do not fabricate an ID or claim that a dry run is a deployment.
 
 When account access is available:
 
-- [ ] Apply D1 migrations and deploy the Worker on the free plan.
-- [ ] Confirm health, real names, and a real calendar at the public HTTPS URL.
+- [x] Apply D1 migrations and deploy the Worker. Free-plan billing confirmation
+      remains pending because the OAuth token cannot read subscriptions.
+- [x] Confirm health, real names, and a real calendar at the public HTTPS URL.
 - [ ] Confirm the production frontend's CORS and base URL.
 - [ ] Measure invocation CPU and D1 usage on representative requests and both
       scheduled jobs, including an unchanged calendar response.
@@ -261,6 +263,22 @@ When account access is available:
       within the intended interval under normal upstream conditions.
 - [ ] Confirm no card, paid subscription, sleeping container, or GitHub
       repository activity is required to keep serving and refreshing.
+
+## Deployment verification (2026-10-08)
+
+- API: `https://um-calendar-api.tian-istenic34.workers.dev`.
+- Version: `c7d251c4-1388-4d1e-accc-d89459f97d2f`.
+- D1: `um-calendar`, both migrations applied; 58 catalog rows bootstrapped.
+- Health, sorted names, three real ICS downloads, cache MISS/HIT, unknown
+  calendar 404, allowed-origin CORS and rejected-origin 403 passed remotely.
+- Captured HTTP invocation CPU: catalog bootstrap 6 ms, cold ICS 5–6 ms,
+  cache hits 1–2 ms. These samples fit the 10 ms target; they are not a
+  guarantee for every invocation or a measurement of scheduled jobs.
+- Both Cron Triggers and the platform rate-limit binding are deployed.
+  Initial D1 smoke-query storage: 139,264 bytes; 58 rows read, 0 written.
+- No subscription or payment settings were changed. Billing subscription
+  access returned 403, so the free-plan/account-card requirement needs dashboard
+  confirmation. Frontend base URL/deployment is separate.
 
 ## Sources
 

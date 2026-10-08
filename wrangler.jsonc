@@ -11,7 +11,8 @@
     {
       "binding": "DB",
       "database_name": "um-calendar",
-      "migrations_dir": "migrations"
+      "migrations_dir": "migrations",
+      "database_id": "cd5a6c0b-8c9e-400e-b1e1-5c21a0a48618"
     }
   ],
   "ratelimits": [
