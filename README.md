@@ -1,8 +1,8 @@
 # UM Calendar API on Cloudflare
 
-Live API: **https://um-calendar-api.tian-istenic34.workers.dev**.
+Live API origin: **https://api.umcalendar.com**.
 
-Custom domain `api.umcalendar.com` is configured in Wrangler but pending removal of the old Azure `api` CNAME. In Cloudflare DNS for `umcalendar.com`, remove only the `api` CNAME targeting `um-calendar-api-gccvc9ddckggd5bj.italynorth-01.azurewebsites.net`, then run `npm run deploy`. Cloudflare manages the new DNS record and HTTPS certificate. Verify `/health` and `/data/names` before setting `VITE_API_BASE=https://api.umcalendar.com`.
+Verify [health](https://api.umcalendar.com/health) or [calendar names](https://api.umcalendar.com/data/names). Set the frontend's `VITE_API_BASE=https://api.umcalendar.com` and rebuild to use this origin. The root path has no endpoint. Cloudflare manages the custom domain's DNS record and HTTPS certificate; the workers.dev URL remains available as a fallback.
 
 TypeScript port of `../backend-go`, using one Cloudflare Worker and D1. No runtime framework, Postgres, or container. See [PLAN.md](PLAN.md) for requirements and live acceptance gates.
 

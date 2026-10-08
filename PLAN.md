@@ -267,8 +267,8 @@ When account access is available:
 
 ## Deployment verification (2026-10-08)
 
-- API: `https://um-calendar-api.tian-istenic34.workers.dev`.
-- Version: `e24d454c-89cb-4a9a-904c-5b2b5167fc94`.
+- API: `https://api.umcalendar.com`; workers.dev remains a fallback.
+- Version: `d596be97-504c-4f67-8b57-6ee12078a7ed`.
 - D1: `um-calendar`, both migrations applied; 58 catalog rows bootstrapped.
 - Health, sorted names, three real ICS downloads, cache MISS/HIT, unknown
   calendar 404, allowed-origin CORS and rejected-origin 403 passed remotely.
@@ -287,19 +287,16 @@ When account access is available:
   access returned 403, so the free-plan/account-card requirement needs dashboard
   confirmation. Frontend base URL/deployment is separate.
 
-## Custom API domain (pending DNS change)
+## Custom API domain (active)
 
-- Requested hostname: `api.umcalendar.com`; configured as a Worker Custom Domain
-  in `wrangler.jsonc`. The `umcalendar.com` zone is active in the same account.
-- Existing DNS-only CNAME targets
-  `um-calendar-api-gccvc9ddckggd5bj.italynorth-01.azurewebsites.net`, which currently
-  returns an Azure unavailable page. No existing DNS record was changed.
-- Wrangler and an explicit custom-domain DNS override both returned Cloudflare
-  error 100117: externally managed records must be removed first. DNS record API
-  access returned 403; the Wrangler OAuth scope does not grant DNS editing.
-- Remove only that old `api` CNAME in Cloudflare DNS, then redeploy to bind the
-  hostname and verify HTTPS health, names, calendar downloads, and frontend CORS.
-- The workers.dev API remains available during this pending domain setup.
+- `api.umcalendar.com` is deployed as a Worker Custom Domain in `wrangler.jsonc`.
+- The user removed the conflicting old Azure CNAME. Cloudflare now manages
+  the hostname's DNS and HTTPS certificate.
+- Verified over public HTTPS: health 200, 58 names, real ICS 200, allowed-origin
+  CORS, and Pages-origin preflight 204.
+- Frontend configuration/deployment is separate: set
+  `VITE_API_BASE=https://api.umcalendar.com` and rebuild.
+- The workers.dev API remains available as a fallback.
 
 ## Sources
 
