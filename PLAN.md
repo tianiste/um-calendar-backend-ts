@@ -11,17 +11,16 @@ the GitHub repository receives no commits.
 
 ## Current state
 
-- The new repository has the initial README commit and an `origin` remote.
-- An initial Worker scaffold was created before this plan was requested. It is
-  committed and pushed after plan review and incremental verification.
-- The scaffold's health/CORS integration check and TypeScript check passed.
-  These checks cover only the scaffold, not the complete port.
-- Worker, D1 migrations, catalog parsing, ICS caching, and both Cron Triggers
-  are implemented and verified locally. Cloud deployment remains pending.
-- The source index was checked on 2026-10-08: 64 valid links, a roughly
-  15 KB index, and listed calendar sizes below 100 KB. The implemented parser
-  confirmed 58 unique calendar codes; duplicate codes 07, 13, and 18 use the
-  last source link, matching the planned code-based upsert. Counts can change.
+- Implementation slices 1–4 are committed and pushed to `origin/main`.
+- TypeScript checks, the dry-run Worker bundle, and 10 Worker/local-D1
+  integration tests pass, including cache races, failures, and scheduled rotation.
+- Local migrations were applied. The separate revision migration upgrades
+  existing local databases without deleting data. No remote migration was run.
+- README and CI document and verify the implementation. CI does not scrape or
+  deploy; Cloudflare deployment and the live acceptance gates remain pending.
+- The source index check on 2026-10-08 found 64 valid links and 58 unique codes.
+  Duplicate codes 07, 13, and 18 use the last source link, matching the planned
+  code-based upsert. The 64-calendar quota estimate is conservative; counts vary.
 
 ## Architecture
 
@@ -230,12 +229,12 @@ Commit: `feat: refresh calendars with Cloudflare Cron Triggers`.
 
 Files: `README.md`, `PLAN.md`, and a minimal GitHub CI workflow if appropriate.
 
-- [ ] Document free-account signup, Wrangler login, D1 creation, binding the
+- [x] Document free-account signup, Wrangler login, D1 creation, binding the
       actual database ID, local/remote migrations, deploy, and log inspection.
-- [ ] Document how to set frontend `VITE_API_BASE` to the Worker origin. The
+- [x] Document how to set frontend `VITE_API_BASE` to the Worker origin. The
       client contract stays the same; an actual frontend deployment requires
       the final Worker URL.
-- [ ] Document cache freshness, free limits, rate-limit differences, and
+- [x] Document cache freshness, free limits, rate-limit differences, and
       recovery/rollback. CI checks code; scraping remains on Cloudflare.
 
 Verification: all focused checks and TypeScript/bundle checks pass; inspect the
@@ -258,7 +257,7 @@ When account access is available:
 - [ ] Confirm the production frontend's CORS and base URL.
 - [ ] Measure invocation CPU and D1 usage on representative requests and both
       scheduled jobs, including an unchanged calendar response.
-- [ ] Observe successful scheduled checks and ensure all 64 calendars rotate
+- [ ] Observe successful scheduled checks and ensure all stored calendars rotate
       within the intended interval under normal upstream conditions.
 - [ ] Confirm no card, paid subscription, sleeping container, or GitHub
       repository activity is required to keep serving and refreshing.
