@@ -13,13 +13,15 @@ the GitHub repository receives no commits.
 
 - The new repository has the initial README commit and an `origin` remote.
 - An initial Worker scaffold was created before this plan was requested. It is
-  uncommitted and has not been pushed. Implementation is paused for plan review.
+  committed and pushed after plan review and incremental verification.
 - The scaffold's health/CORS integration check and TypeScript check passed.
   These checks cover only the scaffold, not the complete port.
-- No database, scraper, calendar endpoint, Cron Trigger, or cloud deployment
-  has been implemented in this repository.
-- The source index was checked on 2026-10-08: 64 valid calendars, a roughly
-  15 KB index, and listed calendar sizes below 100 KB. Counts can change.
+- Worker, D1 migrations, catalog parsing, ICS caching, and both Cron Triggers
+  are implemented and verified locally. Cloud deployment remains pending.
+- The source index was checked on 2026-10-08: 64 valid links, a roughly
+  15 KB index, and listed calendar sizes below 100 KB. The implemented parser
+  confirmed 58 unique calendar codes; duplicate codes 07, 13, and 18 use the
+  last source link, matching the planned code-based upsert. Counts can change.
 
 ## Architecture
 
@@ -210,11 +212,11 @@ Commit: `feat: serve fresh calendars with conditional caching`.
 Files: `src/index.ts`, `src/catalog.ts`, `src/calendar.ts`, `wrangler.jsonc`, and
 scheduled integration checks.
 
-- [ ] Configure the hourly catalog trigger and minute-based two-calendar
+- [x] Configure the hourly catalog trigger and minute-based two-calendar
       refresh trigger, with no public admin/write endpoint.
-- [ ] Select oldest due attempts, record success separately, and make failed
+- [x] Select oldest due attempts, record success separately, and make failed
       files yield to the rest of the queue.
-- [ ] Add structured success/failure logs and preserve successful cached data
+- [x] Add structured success/failure logs and preserve successful cached data
       on background failures.
 
 Verification: trigger both schedules locally; demonstrate batch limits,

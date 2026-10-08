@@ -1,5 +1,5 @@
-import { CalendarError, serveCalendar } from './calendar';
-import { calendarNames, type Env } from './catalog';
+import { CalendarError, serveCalendar, refreshCalendar, type Calendar } from './calendar';
+import { calendarNames, syncCatalog, type Env } from './catalog';
 
 const allowedOrigins = new Set([
   'https://um-calendar-frontend.pages.dev',
@@ -7,6 +7,34 @@ const allowedOrigins = new Set([
 ]);
 
 export default {
+  async scheduled(controller: ScheduledController, env: Env): Promise<void> {
+    try {
+      if (controller.cron === '17 * * * *') {
+        const count = await syncCatalog(env.DB);
+        console.log(JSON.stringify({ event: 'catalog_sync', count }));
+        return;
+      }
+      if (controller.cron !== '* * * * *') throw new Error('Unknown schedule');
+      const due = await env.DB.prepare('SELECT * FROM calendars WHERE attempted_at <= ? ORDER BY attempted_at, code LIMIT 2')
+        .bind(Date.now() - 3_600_000).all<Calendar>();
+      let failed = 0;
+      for (const calendar of due.results) {
+        try {
+          await refreshCalendar(env.DB, calendar);
+          console.log(JSON.stringify({ event: 'calendar_sync', code: calendar.code, success: true }));
+        } catch (error) {
+          failed++;
+          console.error(JSON.stringify({ event: 'calendar_sync', code: calendar.code, success: false,
+            status: error instanceof CalendarError ? error.status : 503 }));
+        }
+      }
+      console.log(JSON.stringify({ event: 'refresh_batch', attempted: due.results.length, failed }));
+      if (failed) throw new Error('Calendar refresh batch had failures');
+    } catch {
+      console.error(JSON.stringify({ event: 'scheduled_failed', cron: controller.cron }));
+      throw new Error('Scheduled refresh failed');
+    }
+  },
   async fetch(request: Request, env: Env): Promise<Response> {
     const origin = request.headers.get('Origin');
     const headers = new Headers({ Vary: 'Origin' });
