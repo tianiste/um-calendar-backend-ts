@@ -80,10 +80,11 @@ or claim identical burst behavior.
    do not delete calendars just because they disappear during one scrape.
    When a source URL changes, clear the corresponding cached content and
    validators so an old URL's data cannot be served as the new calendar.
-3. Run a second trigger every minute. Select at most two calendars whose last
-   attempt is at least an hour old, oldest first, and refresh them sequentially
-   or with at most two outgoing requests. At the current count, capacity is
-   120 refresh attempts per hour for 64 calendars.
+3. Run a second trigger every minute. Select one calendar whose last
+   attempt is at least an hour old, oldest first, and refresh it with one
+   outgoing request. Capacity is 60 refresh attempts per hour for
+   the current 58 stored calendars; a catalog above 60 requires further measured
+   optimization to retain the hourly refresh cadence.
 4. Track successful check time separately from attempt time. A failing file
    must not starve all other calendars or be treated as successfully refreshed.
    Failed background attempts preserve previously successful data and produce
@@ -114,7 +115,7 @@ Published limits checked on 2026-10-08:
 | --- | --- | --- |
 | HTTP requests | 100,000/day | Depends on real client traffic; inspect account metrics |
 | Cron Triggers | 5/account | 2 for this backend; check other account usage |
-| CPU | 10 ms per HTTP or cron invocation | Keep index parsing separate from two-file refreshes; measure remotely |
+| CPU | 10 ms per HTTP or cron invocation | Keep index parsing separate from one-file refreshes; measure remotely |
 | Outgoing subrequests | 50/invocation | Small refresh batches; never fetch all calendars in one invocation |
 | D1 queries | 50/invocation | Bulk index upsert in one SQL query, not one query per calendar |
 | D1 reads | 5 million rows/day | Indexed calendar lookup; names results contain 64 rows currently |
@@ -212,7 +213,7 @@ Commit: `feat: serve fresh calendars with conditional caching`.
 Files: `src/index.ts`, `src/catalog.ts`, `src/calendar.ts`, `wrangler.jsonc`, and
 scheduled integration checks.
 
-- [x] Configure the hourly catalog trigger and minute-based two-calendar
+- [x] Configure the hourly catalog trigger and minute-based one-calendar
       refresh trigger, with no public admin/write endpoint.
 - [x] Select oldest due attempts, record success separately, and make failed
       files yield to the rest of the queue.
@@ -220,7 +221,7 @@ scheduled integration checks.
       on background failures.
 
 Verification: trigger both schedules locally; demonstrate batch limits,
-no unnecessary checks of recently attempted calendars, 64-calendar rotation,
+no unnecessary checks of recently attempted calendars, 58-calendar rotation,
 and recovery after one or more source failures. A scheduled failure must be
 visible in logs/metrics.
 
@@ -267,13 +268,19 @@ When account access is available:
 ## Deployment verification (2026-10-08)
 
 - API: `https://um-calendar-api.tian-istenic34.workers.dev`.
-- Version: `c7d251c4-1388-4d1e-accc-d89459f97d2f`.
+- Version: `e24d454c-89cb-4a9a-904c-5b2b5167fc94`.
 - D1: `um-calendar`, both migrations applied; 58 catalog rows bootstrapped.
 - Health, sorted names, three real ICS downloads, cache MISS/HIT, unknown
   calendar 404, allowed-origin CORS and rejected-origin 403 passed remotely.
 - Captured HTTP invocation CPU: catalog bootstrap 6 ms, cold ICS 5–6 ms,
   cache hits 1–2 ms. These samples fit the 10 ms target; they are not a
-  guarantee for every invocation or a measurement of scheduled jobs.
+  guarantee for every invocation.
+- Initial two-file Cron batches succeeded but used 16 ms and 11 ms CPU,
+  exceeding the 10 ms target. The tested one-file batch is now deployed.
+  Two automatic minute jobs used 5 ms and 4 ms CPU with zero failures.
+  The automatic hourly catalog job used 3 ms CPU and returned 58 codes.
+  Full rotation and ongoing account usage have not yet been observed.
+- Live expired-cache revalidation returned 200 with `X-Cache: MISS`.
 - Both Cron Triggers and the platform rate-limit binding are deployed.
   Initial D1 smoke-query storage: 139,264 bytes; 58 rows read, 0 written.
 - No subscription or payment settings were changed. Billing subscription

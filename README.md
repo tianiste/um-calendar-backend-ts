@@ -56,7 +56,7 @@ Download an encoded filename returned by `/data/names`, repeat for a cache hit, 
 
 ## Refreshes and recovery
 
-An hourly Cron Trigger refreshes the catalog at minute 17 UTC. A second trigger runs every minute and refreshes at most two calendars, oldest attempts first, with an hour between attempts. Cron runs independently of GitHub repository activity. The first names request bootstraps an empty catalog; downloads populate content on demand. The source check on 2026-10-08 found 64 valid links and 58 unique codes. Like the Go repository, D1 stores one row per code, with the last source link winning for duplicate codes.
+An hourly Cron Trigger refreshes the catalog at minute 17 UTC. A second trigger runs every minute and refreshes at most one calendar, oldest attempts first, with an hour between attempts. Cron runs independently of GitHub repository activity. The first names request bootstraps an empty catalog; downloads populate content on demand. The one-file batch keeps measured CPU within the free-tier target. Capacity is 60 attempts/hour for the current 58 stored calendars; more than 60 calendars would require measured optimization to retain an hourly sweep. The source check on 2026-10-08 found 64 valid links and 58 unique codes. Like the Go repository, D1 stores one row per code, with the last source link winning for duplicate codes.
 
 Requests reuse successfully checked content for five minutes (`X-Cache: HIT`). Older content is conditionally revalidated (`MISS`); 304 preserves existing content and validators. Failed background checks retain successful data, but failed request revalidation returns an error. Removed source entries are retained; URL changes invalidate the associated content.
 
