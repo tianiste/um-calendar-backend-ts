@@ -7,7 +7,6 @@ CREATE TABLE calendars (
   last_modified TEXT,
   hash TEXT,
   checked_at INTEGER,
-  revision INTEGER NOT NULL DEFAULT 0,
   attempted_at INTEGER NOT NULL DEFAULT 0
 );
 CREATE INDEX calendars_name ON calendars(name);
