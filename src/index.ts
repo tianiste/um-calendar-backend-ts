@@ -15,7 +15,8 @@ export default {
         return;
       }
       if (controller.cron !== '* * * * *') throw new Error('Unknown schedule');
-      const due = await env.DB.prepare('SELECT * FROM calendars WHERE attempted_at <= ? ORDER BY attempted_at, code LIMIT 2')
+      // ponytail: capacity is 60 calendars/hour; revisit batching when the catalog exceeds 60.
+      const due = await env.DB.prepare('SELECT * FROM calendars WHERE attempted_at <= ? ORDER BY attempted_at, code LIMIT 1')
         .bind(Date.now() - 3_600_000).all<Calendar>();
       let failed = 0;
       for (const calendar of due.results) {

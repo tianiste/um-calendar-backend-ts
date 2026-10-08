@@ -27,7 +27,7 @@ test('hourly catalog retains old rows, avoids unchanged writes, clears changed U
   } finally { await mf.dispose(); }
 });
 
-test('two-calendar batches rotate 64 rows, failed attempts yield, success and attempt timestamps differ, recovery works', async () => {
+test('one-calendar batches rotate 58 rows, failed attempts yield, success and attempt timestamps differ, recovery works', async () => {
   const seen = [];
   let fail = true;
   const { mf, db } = await runtime(async request => {
@@ -36,18 +36,18 @@ test('two-calendar batches rotate 64 rows, failed attempts yield, success and at
     return new Response(body);
   });
   try {
-    await db.batch(Array.from({ length: 64 }, (_, i) => db.prepare('INSERT INTO calendars(code,name,url,content) VALUES(?,?,?,?)')
+    await db.batch(Array.from({ length: 58 }, (_, i) => db.prepare('INSERT INTO calendars(code,name,url,content) VALUES(?,?,?,?)')
       .bind(String(i), `${i}.ics`, source + `${i}.ics`, body)));
     assert.notEqual((await trigger(mf, '* * * * *')).outcome, 'ok');
-    assert.equal(seen.length, 2);
+    assert.equal(seen.length, 1);
     const failed = await db.prepare('SELECT * FROM calendars WHERE code = ?').bind('0').first();
     assert.ok(failed.attempted_at > 0); assert.equal(failed.checked_at, null); assert.equal(failed.content, body);
-    for (let i = 0; i < 31; i++) assert.equal((await trigger(mf, '* * * * *')).outcome, 'ok');
-    assert.equal(new Set(seen).size, 64); assert.equal(seen.length, 64);
-    await trigger(mf, '* * * * *'); assert.equal(seen.length, 64);
+    for (let i = 0; i < 57; i++) assert.equal((await trigger(mf, '* * * * *')).outcome, 'ok');
+    assert.equal(new Set(seen).size, 58); assert.equal(seen.length, 58);
+    await trigger(mf, '* * * * *'); assert.equal(seen.length, 58);
     fail = false; await db.prepare('UPDATE calendars SET attempted_at = 0 WHERE code = ?').bind('0').run();
     assert.equal((await trigger(mf, '* * * * *')).outcome, 'ok');
-    assert.equal(seen.length, 65);
+    assert.equal(seen.length, 59);
     assert.ok((await db.prepare('SELECT checked_at FROM calendars WHERE code = ?').bind('0').first()).checked_at > 0);
   } finally { await mf.dispose(); }
 });
