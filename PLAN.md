@@ -172,11 +172,11 @@ Commit: `feat: establish the Cloudflare Worker API`.
 Files: `migrations/0001_calendars.sql`, `src/catalog.ts`, `src/index.ts`,
 `wrangler.jsonc`, and catalog integration checks.
 
-- [ ] Add the D1 schema, name/refresh indexes, and sync timestamps; migrations
+- [x] Add the D1 schema, name/refresh indexes, and sync timestamps; migrations
       must run explicitly before deployment, not on every request.
-- [ ] Parse source links safely and perform a parameterized bulk upsert using
+- [x] Parse source links safely and perform a parameterized bulk upsert using
       JSON in one statement to avoid the 50-query limit.
-- [ ] Implement sorted names and first-use bootstrap; a failed or empty scrape
+- [x] Implement sorted names and first-use bootstrap; a failed or empty scrape
       must not erase a working catalog.
 
 Verification: apply the local migration; use the Workers runtime and real local
