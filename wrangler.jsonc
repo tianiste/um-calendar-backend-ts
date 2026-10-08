@@ -30,5 +30,11 @@
       "17 * * * *",
       "* * * * *"
     ]
-  }
+  },
+  "routes": [
+    {
+      "pattern": "api.umcalendar.com",
+      "custom_domain": true
+    }
+  ]
 }

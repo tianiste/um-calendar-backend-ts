@@ -287,6 +287,20 @@ When account access is available:
   access returned 403, so the free-plan/account-card requirement needs dashboard
   confirmation. Frontend base URL/deployment is separate.
 
+## Custom API domain (pending DNS change)
+
+- Requested hostname: `api.umcalendar.com`; configured as a Worker Custom Domain
+  in `wrangler.jsonc`. The `umcalendar.com` zone is active in the same account.
+- Existing DNS-only CNAME targets
+  `um-calendar-api-gccvc9ddckggd5bj.italynorth-01.azurewebsites.net`, which currently
+  returns an Azure unavailable page. No existing DNS record was changed.
+- Wrangler and an explicit custom-domain DNS override both returned Cloudflare
+  error 100117: externally managed records must be removed first. DNS record API
+  access returned 403; the Wrangler OAuth scope does not grant DNS editing.
+- Remove only that old `api` CNAME in Cloudflare DNS, then redeploy to bind the
+  hostname and verify HTTPS health, names, calendar downloads, and frontend CORS.
+- The workers.dev API remains available during this pending domain setup.
+
 ## Sources
 
 - [Workers limits](https://developers.cloudflare.com/workers/platform/limits/)
