@@ -148,7 +148,7 @@ checklist in the corresponding commit. Do not stage unfinished later slices.
 ### 0. Record the plan
 
 - [x] Commit and push only `PLAN.md`, leaving the existing scaffold uncommitted.
-- [ ] Review the plan before continuing implementation.
+- [x] Review the plan before continuing implementation.
 
 ### 1. Worker foundation
 
@@ -156,10 +156,10 @@ Files: `package.json`, lockfile, `tsconfig.json`, `wrangler.jsonc`, `.gitignore`
 `src/index.ts`, and the small integration harness. This is the one tooling
 slice that necessarily reaches more than five files.
 
-- [ ] Review the existing scaffold against this plan and pin tool versions.
-- [ ] Provide health, allowed-origin CORS, preflight, controlled unknown routes,
+- [x] Review the existing scaffold against this plan and pin tool versions.
+- [x] Provide health, allowed-origin CORS, preflight, controlled unknown routes,
       and method handling with no runtime framework dependency.
-- [ ] Ensure generated files, credentials, local state, and environment files
+- [x] Ensure generated files, credentials, local state, and environment files
       are ignored.
 
 Verification: `npm run check`, Worker dry-run bundle, and integration checks

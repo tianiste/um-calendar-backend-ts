@@ -1,0 +1,10 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "um-calendar-api",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-10-08",
+  "workers_dev": true,
+  "observability": {
+    "enabled": true
+  }
+}

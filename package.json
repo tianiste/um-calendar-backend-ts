@@ -1,0 +1,22 @@
+{
+  "name": "um-calendar-backend-ts",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "dev": "wrangler dev --port 8080 --test-scheduled",
+    "check": "tsc --noEmit",
+    "build": "wrangler deploy --dry-run --outdir dist",
+    "deploy": "wrangler deploy",
+    "test": "npm run build && node --test test/*.test.mjs"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "5.20261008.1",
+    "miniflare": "5.20261006.0-alpha",
+    "typescript": "7.0.2",
+    "wrangler": "4.148.0"
+  }
+}
