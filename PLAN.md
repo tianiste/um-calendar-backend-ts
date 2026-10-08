@@ -191,12 +191,12 @@ Commit: `feat: persist the calendar catalog in D1`.
 Files: `src/calendar.ts`, `src/index.ts`, API integration checks, and any required
 schema correction before the migration is used remotely.
 
-- [ ] Implement lookup, safe upstream requests with a 30-second timeout,
+- [x] Implement lookup, safe upstream requests with a 30-second timeout,
       content validation/size limits, conditional fetch, hash, and five-minute
       cache behavior.
-- [ ] Preserve status codes and `X-Cache`; handle 304, changed URLs, failed
+- [x] Preserve status codes and `X-Cache`; handle 304, changed URLs, failed
       writes, and concurrent results without corrupting successful data.
-- [ ] Add the supported rate-limiting binding and log errors without secrets.
+- [x] Add the supported rate-limiting binding and log errors without secrets.
 
 Verification: cold download, cache hit, expired cache/304, changed body, missing
 calendar, invalid encoding, network failure, upstream HTML, source URL change,

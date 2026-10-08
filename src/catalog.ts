@@ -1,6 +1,6 @@
 export const source = 'https://urnik.fov.um.si/Program/calendars/';
 
-export interface Env { DB: D1Database }
+export interface Env { DB: D1Database; RATE_LIMITER: RateLimit }
 
 export async function syncCatalog(db: D1Database): Promise<number> {
   const response = await fetch(source, { redirect: 'manual', signal: AbortSignal.timeout(30_000) });
@@ -26,7 +26,7 @@ export async function syncCatalog(db: D1Database): Promise<number> {
     INSERT INTO calendars (code, name, url)
     SELECT json_extract(value, '$.code'), json_extract(value, '$.name'), json_extract(value, '$.url')
     FROM json_each(?) WHERE 1
-    ON CONFLICT(code) DO UPDATE SET name = excluded.name, url = excluded.url,
+    ON CONFLICT(code) DO UPDATE SET revision = revision + 1, name = excluded.name, url = excluded.url,
       content = CASE WHEN calendars.url = excluded.url THEN content END,
       etag = CASE WHEN calendars.url = excluded.url THEN etag END,
       last_modified = CASE WHEN calendars.url = excluded.url THEN last_modified END,

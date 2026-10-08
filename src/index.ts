@@ -1,3 +1,4 @@
+import { CalendarError, serveCalendar } from './calendar';
 import { calendarNames, type Env } from './catalog';
 
 const allowedOrigins = new Set([
@@ -24,7 +25,28 @@ export default {
       headers.set('Content-Type', 'application/json');
       return new Response(JSON.stringify({ message: 'pong' }), { headers });
     }
-    if (new URL(request.url).pathname === '/data/names') {
+    const path = new URL(request.url).pathname;
+    if (path.startsWith('/data/')) {
+      try {
+        const { success } = await env.RATE_LIMITER.limit({ key: request.headers.get('CF-Connecting-IP') ?? 'local' });
+        if (!success) return new Response(JSON.stringify({ error: 'too many requests' }), { status: 429, headers });
+      } catch {
+        console.error(JSON.stringify({ event: 'rate_limit_failed' }));
+        return new Response(null, { status: 503, headers });
+      }
+    }
+    if (path.startsWith('/data/cal/')) {
+      let name: string;
+      try { name = decodeURIComponent(path.slice('/data/cal/'.length)).trim(); }
+      catch { return new Response(null, { status: 400, headers }); }
+      try { return await serveCalendar(env.DB, name, headers); }
+      catch (error) {
+        const status = error instanceof CalendarError ? error.status : 503;
+        console.error(JSON.stringify({ event: 'calendar_failed', status }));
+        return new Response(null, { status, headers });
+      }
+    }
+    if (path === '/data/names') {
       try {
         headers.set('Content-Type', 'application/json');
         return new Response(JSON.stringify(await calendarNames(env.DB)), { headers });

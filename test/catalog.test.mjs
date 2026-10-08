@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { runtime } from './helpers.mjs';
 
-test('catalog bootstrap validates links, deduplicates codes, sorts, and retains old rows', async () => {
+test('catalog bootstrap validates links, deduplicates codes, sorts', async () => {
   let html = `<a href="2---B.ics">B</a><a href="1---%C5%BD.ics">Z</a>
     <a href="2---C.ics">duplicate</a><a href="---placeholder.ics">placeholder</a>
     <a href="https://evil.example/Program/calendars/3---E.ics">foreign</a>
@@ -17,7 +17,7 @@ test('catalog bootstrap validates links, deduplicates codes, sorts, and retains 
   } finally { await mf.dispose(); }
 });
 
-test('empty upstream and missing database produce controlled errors with CORS', async () => {
+test('empty upstream produce controlled errors with CORS', async () => {
   const { mf, request } = await runtime(async () => new Response('<html>empty</html>'));
   try {
     const response = await request('/data/names', { headers: { Origin: 'https://umcalendar.com' } });
